@@ -1,11 +1,12 @@
 # Subscribe API
 ## Описание
+Данный API предназначен для интеграции Payme в приложении поставщика. Например, мобильное приложение с возможностью оплатить за услуги через платёжный инструмент Payme.
 - Нужно реализовать сервер по протоколу описанной в [документации](http://paycom.uz/developers/merchant/overview).
-- Нужно на фронте или приложении сделать форму для ввода карточных данных и `OTP` (`One Time Password` - `Проверочный код`). Основное требование к форме: элементы для ввода не должны иметь аттрибута `name` и тег `form` не должен иметь аттрибута `action`.
-- Пользователь на фронте или приложении вводит свои карточные данные, вводит проверочный код. Вводимые пользователем данные не в коем случае не отправлять себе на сервер. Все это происходит с помощью API которые описаны ниже. В ответ на запросы от API получаете токен карты, который дальше используете в серверном API.
+- Нужно на фронте или в приложении сделать форму для ввода карточных данных и `OTP` (`One Time Password` - `Проверочный код`). Основное требование к форме: элементы для ввода не должны иметь аттрибута `name` и тег `form` не должен иметь атрибут `action`.
+- Пользователь на фронте или в приложении вводит свои карточные данные, вводит проверочный код. Вводимые пользователем данные ни в коем случае не отправлять себе на сервер. Все это происходит с помощью API которые описаны ниже. В ответ на запросы от API получаете токен карты, который дальше используете в серверном API.
 - Разместить логотип Payme в приложение или в форму на фронте.
 - Поставить [оферту Payme](https://cdn.payme.uz/terms/main.html).
-- Поставить подсказку или текст, что все данные пользователей не передаются поставщику и сохраняются на сервисе Payme.
+- Поставить подсказку или текст, о том что все данные пользователей не передаются поставщику, а сохраняются на сервисе Payme.
 
 ### Пример формы
 В этой форме можно увидеть логотип, подсказку и ссылку на оферту.
@@ -19,7 +20,7 @@
 
 ## Endpoints
 
-Endpoint для серверного и фронт API один и тотже: `https://checkout.paycom.uz/api`
+Endpoint для серверного и фронт API один и тот же: `https://checkout.paycom.uz/api`
 Для тестов `http://checkout.test.paycom.uz/api`
 
 Для авторизации вам необходимо отправить заголовок `X-Auth`.
@@ -29,29 +30,35 @@ Endpoint для серверного и фронт API один и тотже: `
 | `X-Auth: {id}`| `X-Auth: {id}:{key}` |
 
 ## Методы для Front-End
-API строятся на основе `json-rpc`, поэтому далее я буду описывать в этом контексте
+
+API строятся на основе `json-rpc`, поэтому дальнейшие действия будут описаны в этом контексте.
+
 ### cards.create
-Метод для создание токена карты.
+
+Метод для создания токена карты.
 
 Параметры:
+
 ```js
-card: {
-    number String,
-    expire: String
-},
-amount: Number,
-account: Object,
-save: Boolean
+{
+    card: {
+        number String,
+        expire: String
+    },
+    amount: Number,
+    account: Object,
+    save: Boolean
+}
 ```
 
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `card`    | Object  | параметры карты |
 | `number`  | String  | номер карты |
-| `expire`  | String  | дата истечения карты |
+| `expire`  | String  | срок действия карты |
 | `amount`  | Number  | запрашиваемая сумма платежа |
 | `account?` | Object  | объект Account, данный параметр не обязательный |
-| `save?`    | Boolean | данный параметр не обязательный. Если флаг `true` токен можно будет использовать для дальнейших платежей, если флаг `false` токеном можно будет сделать только 1 оплату, после чего токен будет недоступен. Данное поле должно проставляться пользователем, (например `checkbox` `Запонить карту`, по умолчанию `checkbox` должен быть выключен).|
+| `save?`    | Boolean | данный параметр не обязателен. Если флаг `true` токен можно будет использовать для дальнейших платежей, если флаг `false` токеном можно будет сделать только 1 оплату, после чего токен будет недоступен. Данное поле должно проставляться пользователем, (например `checkbox` `Запонить карту`, по умолчанию `checkbox` должен быть выключен).|
 
 Результат:
 ```js
@@ -65,26 +72,70 @@ save: Boolean
     }
 }
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `number` | String | не полный номер карты, данную строку можете сохранить у себя на сервере |
-| `expire` | String | дата истечения карты |
+| `expire` | String | срок действия карты |
 | `token` | String | токен карты |
 | `recurrent`| Boolean | флаг, доступна ли карта для последующих платежей |
 | `verify` | Boolean | флаг, верифицирована ли карта |
 
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.create",
+    "params": {
+		"card": { "number": "4444444444444444", "expire": "0918"},
+		"amount": 3500,
+		"save": true
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "card": {
+            "number": "444444******4444",
+            "expire": "09/18",
+            "token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp",
+            "recurrent": true,
+            "verify": false
+        }
+    }
+}
+```
+
 ### cards.get_verify_code
+
 Метод запрашивает код для верификации карты.
 
 Параметры:
+
+```js
+{
+    token: String
+}
 ```
-token: String - токен карты
-```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `token` | String | токен карты |
 
 Результат:
+
 ```js
 {
     sent: true,
@@ -92,16 +143,50 @@ token: String - токен карты
     wait: Number
 }
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `sent` | Boolean | флаг результата отправки |
-| `phone` | String | не полный номер карты куда была отправлена смс с кодом |
-| `wait` | Number | время в милиссикундах которое необходимо выждать перед повторным запросом кода |
+| `phone` | String | не полный номер карты куда был отправлен смс с кодом |
+| `wait` | Number | время в миллисекундах которое необходимо выждать перед повторным запросом кода |
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.get_verify_code",
+    "params": {
+		"token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp"
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "sent": true,
+        "phone": "99890*****31",
+        "wait": 60000
+    }
+}
+```
 
 ### cards.verify
+
 Метод верифицирует карту с помощью кода отправленного по СМС.
 
 Параметры:
+
 ```js
 {
     token: String,
@@ -114,27 +199,78 @@ token: String - токен карты
 | `token` | String | токен карты |
 | `code` | String | код для верификации |
 
-## Методы для серверной части
-### cards.remove
-Метод для удаления токена.
-Параметры:
-```js
-token: String
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.verify",
+    "params": {
+		"token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp",
+		"code": "666666"
+	}
+}
 ```
+
+Пример ответа:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 123,
+  "result": {
+    "card": {
+      "number": "444444******4444",
+      "expire": "09/18",
+      "token": "NTg0YTgxZWYyYWJiNWNhYTMxMDc5OTExXyVwOTY4TzI3MTJRQ28lWmsoREEyRClYOCtxZ18kVWRLRm0xP3FucVUzJChZazhFV3I1dmtrQiZUaFU5MzZRdSlGbUJPSEh2K1IoWU0lYSg3ZEYlK1QhTUV4P3pUU+KElkMkXjNuIUR6U19pdjY4b3Ffbkt3ajImZTRhZll0dUptNjBVMUF4KXJKJD0qTlNeQmJ5X2Q3bXZNRnZ2UXhfU25TS0dpcGc9V1doUEZxKSM5R0dJYjA9U2dGX2ReZ3lATeKElj9mZWZJS3MzKVp5MjFeOVY5cE8jZWh6cHZLeWZXKSF2PVBfVVU4ei1Gbj82JkI3YjhuRCFWa1omaDB4JEliQm8h",
+      "recurrent": true,
+      "verify": true
+    }
+  }
+}
+```
+
+## Методы для серверной части
+
+### cards.remove
+
+Метод для удаления токена.
+
+Параметры:
+
+```js
+{
+    token: String
+}
+```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `token` | String | токен карты |
 
 ### cards.check
+
 Метод для проверка токена карты.
+
 Параметры:
+
 ```js
-token: String
+{
+    token: String
+}
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `token` | String | токен карты |
+
 Результат:
+
 ```js
 {
     card: {
@@ -146,6 +282,7 @@ token: String
     }
 }
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `number` | String | не полный номер карты, данную строку можете сохранить у себя на сервере |
@@ -155,14 +292,20 @@ token: String
 | `verify` | Boolean | флаг, верифицирована ли карта |
 
 ### receipts.create
+
 Метод создает чек для оплаты.
+
 Параметры:
+
 ```js
-amount: Number,
-account: Object,
-description: String,
-detail: Object
+{
+    amount: Number,
+    account: Object,
+    description: String,
+    detail: Object
+}
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `amount` | Number | Сумма платежа в тиинах |
@@ -171,11 +314,15 @@ detail: Object
 | `detail?` | Object | Необязательный параметр. Объект детализации платежа. |
 
 Ответ:
-```
-result.receipt
+
+```js
+{
+    result: receipt
+}
 ```
 
 Пример ответа:
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -225,8 +372,11 @@ result.receipt
 ```
 
 ### receipts.pay
+
 Метод для оплаты чека.
+
 Параметры:
+
 ```js
 id: String,
 token: String,
@@ -238,6 +388,7 @@ payer: {
     ip: String
 }
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `id` | String | ID Чека |
@@ -245,6 +396,7 @@ payer: {
 | `payer?` | Object | Дополнительная информация о плательщике, необходима для системы антифрода, все поля данного объекта не обязательны |
 
 Пример ответа:
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -297,19 +449,25 @@ payer: {
 ```
 
 ### receipts.cancel
+
 Метод ставит в очередь на отмену оплаченный чек.
+
 Параметры:
+
 ```js
-id: String,
-partially: {
-    receivers: Array<{
-        id: String,
-        hold: Number
-    }>,
-    description: String,
-    detail: Object
+{
+    id: String,
+    partially: {
+        receivers: Array<{
+            id: String,
+            hold: Number
+        }>,
+        description: String,
+        detail: Object
+    }
 }
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `id`       | String | ID Чека          |
@@ -321,27 +479,39 @@ partially: {
 | `detail?` | Object | Необязательный параметр. Детализация нового чека. Если не указать данный параметр, он будет скопирован из оригинального чека. |
 
 ### receipts.check
+
 Метод для проверки статуса чека.
+
 Параметры:
+
 ```js
-id: String
+{
+    id: String
+}
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `id` | String | ID Чека |
 
 ### receipts.get
+
 Метод возвращает полную информацияю по чеку.
 
 Параметры:
+
 ```js
-id: String
+{
+    id: String
+}
 ```
+
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `id` | String | ID Чека |
 
 ### Статусы чека
+
 | Код | Описание |
 |-----------|------------------|
 | `0` | чек создан и ожидает подтверждение оплаты |
