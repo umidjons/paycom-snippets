@@ -327,6 +327,13 @@ Cache-Control: no-cache
 |-----------|---------|----------|
 | `token` | String | токен карты |
 
+Ответ:
+```js
+{
+    success: Boolean
+}
+```
+
 Пример запроса:
 
 ```http
@@ -387,16 +394,37 @@ Cache-Control: no-cache
 }
 ```
 
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "receipts.create",
+	"params": {
+		"amount": 2500,
+		"account": {
+			"order_id": 106
+		}
+	}
+}
+```
+
 Пример ответа:
 
 ```json
 {
   "jsonrpc": "2.0",
-  "id": null,
+  "id": 123,
   "result": {
     "receipt": {
-      "_id": "7e0b6c1f16ab68d1beae111b",
-      "create_time": 1481009482171,
+      "_id": "2e0b1bc1f1eb50d487ba268d",
+      "create_time": 1481113810044,
       "pay_time": 0,
       "cancel_time": 0,
       "state": 0,
@@ -407,18 +435,18 @@ Cache-Control: no-cache
       "error": null,
       "description": "",
       "detail": null,
-      "amount": 3500,
+      "amount": 2500,
       "commission": 0,
       "account": [
         {
           "name": "order_id",
           "title": "Код заказа",
-          "value": "2"
+          "value": "106"
         }
       ],
       "card": null,
       "merchant": {
-        "_id": "583fe486b33784292111b7dc",
+        "_id": "100fe486b33784292111b7dc",
         "name": "Online Shop LLC",
         "organization": "ЧП «Online Shop»",
         "address": "",
@@ -461,6 +489,35 @@ payer: {
 | `token` | String | Токен карты |
 | `payer?` | Object | Дополнительная информация о плательщике, необходима для системы антифрода, все поля данного объекта не обязательны |
 
+Ответ:
+```js
+{
+    result: receipt
+}
+```
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "receipts.pay",
+	"params": {
+		"id": "2e0b1bc1f1eb50d487ba268d",
+		"token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ==",
+		"payer": {
+			"phone": "998901304527"
+		}
+	}
+}
+```
+
 Пример ответа:
 
 ```json
@@ -469,7 +526,7 @@ payer: {
   "id": null,
   "result": {
     "receipt": {
-      "_id": "7e0b7111ea2c87cdd22f26ae",
+      "_id": "2e0b1bc1f1eb50d487ba268d",
       "create_time": 1481113810044,
       "pay_time": 1481113810265,
       "cancel_time": 0,
@@ -492,10 +549,10 @@ payer: {
       ],
       "card": {
         "number": "444444******4444",
-        "expire": "1704"
+        "expire": "1809"
       },
       "merchant": {
-        "_id": "583fe486b33784292111b7dc",
+        "_id": "100fe486b33784292111b7dc",
         "name": "Online Shop LLC",
         "organization": "ЧП «Online Shop»",
         "address": "",
@@ -544,6 +601,81 @@ payer: {
 | `description?` | String | Необязательный параметр. Описание для новго чека. Если не указать данный параметр, он будет скопирован из оригинального чека. |
 | `detail?` | Object | Необязательный параметр. Детализация нового чека. Если не указать данный параметр, он будет скопирован из оригинального чека. |
 
+Ответ:
+```js
+{
+    result: receipt
+}
+```
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "receipts.cancel",
+	"params": {
+		"id": "2e0b1bc1f1eb50d487ba268d"
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "receipt": {
+            "_id": "2e0b1bc1f1eb50d487ba268d",
+            "create_time": 1482823890336,
+            "pay_time": 1482823890564,
+            "cancel_time": 0,
+            "state": 21,
+            "type": 1,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 2000,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "Код заказа",
+                    "value": "124"
+                }
+            ],
+            "card": null,
+            "merchant": {
+                "_id": "100fe486b33784292111b7dc",
+                "name": "Online Shop LLC",
+                "organization": "ЧП «Online Shop»",
+                "address": "",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1480582278779,
+                "logo": null,
+                "type": "Shop",
+                "terms": null
+            },
+            "meta": null
+        }
+    }
+}
+```
+
 ### receipts.check
 
 Метод для проверки статуса чека.
@@ -559,6 +691,47 @@ payer: {
 | Параметр  | Тип     | Описание |
 |-----------|---------|----------|
 | `id` | String | ID Чека |
+
+Ответ:
+```js
+{
+    state: Number
+}
+```
+
+| Параметр  | Тип     | Описание |
+|-----------|---------|----------|
+| `state` | Number | Состояние чека |
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "receipts.check",
+	"params": {
+		"id": "2e0b1bc1f1eb50d487ba268d"
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "state": 4
+    }
+}
+```
 
 ### receipts.get
 
@@ -576,7 +749,75 @@ payer: {
 |-----------|---------|----------|
 | `id` | String | ID Чека |
 
-### Статусы чека
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "receipts.get",
+	"params": {
+		"id": "2e0b1bc1f1eb50d487ba268d"
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "receipt": {
+            "_id": "2e0b1bc1f1eb50d487ba268d",
+            "create_time": 1482823890336,
+            "pay_time": 1482823890564,
+            "cancel_time": 0,
+            "state": 4,
+            "type": 1,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 2000,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "Код заказа",
+                    "value": "124"
+                }
+            ],
+            "card": null,
+            "merchant": {
+                "_id": "100fe486b33784292111b7dc",
+                "name": "Online Shop LLC",
+                "organization": "ЧП «Online Shop»",
+                "address": "",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1480582278779,
+                "logo": null,
+                "type": "Shop",
+                "terms": null
+            },
+            "meta": null
+        }
+    }
+}
+```
+
+### Состояния чека
 
 | Код | Описание |
 |-----------|------------------|
