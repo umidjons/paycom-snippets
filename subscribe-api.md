@@ -237,22 +237,6 @@ Cache-Control: no-cache
 
 ## Методы для серверной части
 
-### cards.remove
-
-Метод для удаления токена.
-
-Параметры:
-
-```js
-{
-    token: String
-}
-```
-
-| Параметр  | Тип     | Описание |
-|-----------|---------|----------|
-| `token` | String | токен карты |
-
 ### cards.check
 
 Метод для проверка токена карты.
@@ -290,6 +274,88 @@ Cache-Control: no-cache
 | `token` | String | токен карты |
 | `recurrent` | Boolean | флаг, доступна ли карта для последующих платежей |
 | `verify` | Boolean | флаг, верифицирована ли карта |
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "cards.check",
+	"params": {
+		"token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ=="
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "card": {
+            "number": "444444******4444",
+            "expire": "09/18",
+            "token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ==",
+            "recurrent": true,
+            "verify": true
+        }
+    }
+}
+```
+
+### cards.remove
+
+Метод для удаления токена.
+
+Параметры:
+
+```js
+{
+    token: String
+}
+```
+
+| Параметр  | Тип     | Описание |
+|-----------|---------|----------|
+| `token` | String | токен карты |
+
+Пример запроса:
+
+```http
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"id": 123,
+	"method": "cards.remove",
+	"params": {
+		"token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ=="
+	}
+}
+```
+
+Пример ответа:
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "success": true
+    }
+}
+```
 
 ### receipts.create
 
